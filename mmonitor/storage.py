@@ -1,6 +1,11 @@
 import shutil
 import psutil
 
+class Storage():
+    def __init__(self):
+       pass 
+        
+
 def get_disk_usage(mountpoint):
     try:
         return shutil.disk_usage(mountpoint) # disk disk usage in Bytes

@@ -1,13 +1,16 @@
-# A Python Tool and API for Querying Machine Health & Usage# 
+# `machine-monitor` 
+
+> A Python Tool and API for Querying Machine Health & Usage
 
 ## Plan
 
-- API for listing :
+- [ ] API for listing :
     - CPU usage,
     - GPU usage,
     - network interface states,
     - ...?
-- CLI for the API
+- [ ] CLI for the API
+- [ ] Remote
 
 ## References
 
