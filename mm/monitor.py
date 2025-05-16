@@ -35,13 +35,10 @@ def machine_info():
     - kernel : Linux kernel version (only on Linux),
     - arch : CPU architecture, e.g., x64, arm64, etc..
     """
-    def empty2unknown(s):
-        return s if s else "UNKNOWN"
-
     info = namedtuple('MACHINE', ['hostname','os','version','kernel', 'arch'])
     ver = ''
     kernel = ''
-    os_name = 'UNKNOWN'
+    os_name = ''
 
     match platform.system():
         case 'Linux':
@@ -57,37 +54,49 @@ def machine_info():
             kernel = f'linux {platform.release()}'
         case 'Darwin':
             os_name = 'macos'
-            ver = empty2unknown(platform.mac_ver()[0])
+            ver = platform.mac_ver()[0]
             kernel = f"darwin {platform.release()}"
         case 'Windows':
             os_name = 'windows'
             ver = platform.release()
-            kernel = empty2unknown(platform.win32_ver()[1]) 
+            kernel = platform.win32_ver()[1]
 
     return info(
-        hostname = empty2unknown(platform.node()),
+        hostname = platform.node(),
         os = os_name,
         version = ver,
         kernel = kernel,
-        arch = empty2unknown(platform.machine()),
+        arch = platform.machine(),
     )
 
 
 class MachineMonitor():
     @staticmethod
     def info():
-        pass
+        "Calls monitor.machine_info()"
+        return machine_info()
 
     @staticmethod
     def metrics():
-        pass
+        machine_metrics = {
+            'cpu_usage': _get_cpu_usage(),
+            'mem_usage': _get_memory_usage(),
+            'disk_usage': _get_disk_usage(),
+            'network_stats': _get_network_stats(),
+        }
+        return machine_metrics
 
     @staticmethod
     def _get_cpu_usage():
         pass
 
     @staticmethod
+    def _get_memory_usage():
+        pass
+
+    @staticmethod
     def _get_disk_usage():
+        # byte2human(1024**3) -> 1Gi
         pass
 
     @staticmethod
