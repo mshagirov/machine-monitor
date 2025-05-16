@@ -12,8 +12,6 @@
 - [ ] CLI for the API
 - [ ] Remote
 
-## References
-
 
 ## References
 
