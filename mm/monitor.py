@@ -27,15 +27,17 @@ def byte2human( in_bytes:int|float)->str:
     return f"{scaled_value}{magnitude[id]}"
 
 def machine_info():
-    """Provides machine information as a namedtuple with following fields:
+    """Provides machine information as a dict of strings with following keys:
     
     - hostname : hostname of the machine on the network,
     - os : name of the operating system (OS),
     - version : OS version,
     - kernel : Linux kernel version (only on Linux),
     - arch : CPU architecture, e.g., x64, arm64, etc..
+    - cpu : processor name
+    - cpu_count : number of physical CPU cores and logical in parentheses, e.g. "32 (64 logical)".
+
     """
-    info = namedtuple('MACHINE', ['hostname','os','version','kernel', 'arch'])
     ver = ''
     kernel = ''
     os_name = ''
@@ -61,13 +63,13 @@ def machine_info():
             ver = platform.release()
             kernel = platform.win32_ver()[1]
 
-    return info(
-        hostname = platform.node(),
-        os = os_name,
-        version = ver,
-        kernel = kernel,
-        arch = platform.machine(),
-    )
+    return {'hostname' : platform.node(),
+            'os' : os_name,
+            'version' : ver,
+            'kernel' : kernel,
+            'arch' : platform.machine(),
+            'cpu' : platform.processor(),
+            'cpu_count' : f"{psutil.cpu_count(logical=False)} ({psutil.cpu_count()} logical)",}
 
 
 class MachineMonitor():
