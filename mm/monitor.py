@@ -76,10 +76,11 @@ class MachineMonitor():
         self.info = machine_info()
 
     def __str__(self) -> str:
+        return f'{self.__class__.__name__}:'+pformat(self.info, sort_dicts=False)
+
+    def __repr__(self) -> str:
         info = ','.join(map( lambda i: f"{i[0]}={i[1]}", self.info.items()))
         return f"{self.__class__.__name__}: {info}"
-    def __repr__(self) -> str:
-        return self.__str__()
 
     def metrics(self, percpu=False):
         """Returns dict of strings with keys:

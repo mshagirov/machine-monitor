@@ -5,11 +5,16 @@ from time import sleep
 def main():
     m = MachineMonitor()
     
+    print('m.info:\n')
     pp(m.info)
-    pp(m.metrics())
-    for _ in range(10):
+
+    print('m:')
+    print(m)
+    print(m.__repr__())
+    
+    for _ in range(5):
         print(m.metrics())
-        sleep(5)
+        sleep(1)
 
 
 if __name__ == '__main__':
