@@ -79,29 +79,31 @@ class MachineMonitor():
     @staticmethod
     def metrics():
         machine_metrics = {
-            'cpu_usage': _get_cpu_usage(),
-            'mem_usage': _get_memory_usage(),
-            'disk_usage': _get_disk_usage(),
-            'network_stats': _get_network_stats(),
+            'cpu_usage': MachineMonitor._get_cpu_usage(),
+            'mem_usage': MachineMonitor._get_memory_usage(),
+            'disk_usage': MachineMonitor._get_disk_usage(),
+            'network_stats': MachineMonitor._get_network_stats(),
         }
         return machine_metrics
 
     @staticmethod
     def _get_cpu_usage():
-        pass
+        cpu_use = map(lambda c: f"{c:.1f}", psutil.cpu_percent(interval=.2, percpu=True))
+        return " ".join(cpu_use)
+        
 
     @staticmethod
     def _get_memory_usage():
-        pass
+        return None
 
     @staticmethod
     def _get_disk_usage():
         # byte2human(1024**3) -> 1Gi
-        pass
+        return None
 
     @staticmethod
     def _get_network_stats():
         #psutil.net_if_stats()
-        pass
+        return None
 
 
