@@ -1,0 +1,1 @@
+python mm/main.py
