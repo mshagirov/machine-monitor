@@ -4,8 +4,7 @@ import psutil
 import shutil
 import math
 import platform
-from collections import namedtuple
-
+from pprint import pformat
 
 def byte2human( in_bytes:int|float)->str:
     """Converts `int` and `float` bytes to human-readable string
@@ -73,26 +72,37 @@ def machine_info():
 
 
 class MachineMonitor():
-    @staticmethod
-    def info():
-        "Calls monitor.machine_info()"
-        return machine_info()
+    def __init__(self) -> None:
+        self.info = machine_info()
 
-    @staticmethod
-    def metrics():
+    def __str__(self) -> str:
+        info = ','.join(map( lambda i: f"{i[0]}={i[1]}", self.info.items()))
+        return f"{self.__class__.__name__}: {info}"
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def metrics(self, percpu=False):
+        """Returns dict of strings with keys:
+        
+        - cpu_usage : CPU utilisation as a percentage; set "percpu=True" to get usage for cores
+        - mem_usage :
+        - disk_usage :
+        - network_stats :
+
+        """
         machine_metrics = {
-            'cpu_usage': MachineMonitor._get_cpu_usage(),
-            'mem_usage': MachineMonitor._get_memory_usage(),
-            'disk_usage': MachineMonitor._get_disk_usage(),
-            'network_stats': MachineMonitor._get_network_stats(),
+            'cpu_usage': self._get_cpu_usage(percpu),
+            'mem_usage': self._get_memory_usage(),
+            'disk_usage':self._get_disk_usage(),
+            'network_stats': self._get_network_stats(),
         }
         return machine_metrics
 
     @staticmethod
-    def _get_cpu_usage():
-        cpu_use = map(lambda c: f"{c:.1f}", psutil.cpu_percent(interval=.2, percpu=True))
-        return " ".join(cpu_use)
-        
+    def _get_cpu_usage(percpu):
+        if percpu:
+            return " ".join(map(lambda c: f"{c:.1f}", psutil.cpu_percent(interval=.2, percpu=True)))
+        return f"{psutil.cpu_percent(interval=.2,percpu=False):.1f}"
 
     @staticmethod
     def _get_memory_usage():
