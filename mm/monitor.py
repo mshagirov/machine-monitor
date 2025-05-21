@@ -2,101 +2,12 @@
 
 import psutil
 import shutil
-import math
-import platform
 from pprint import pformat
-from pathlib import Path
-import yaml
 
-
-FILE_ERROR = "FILE_NOT_FOUND"
-CONFIG_FORMAT_ERROR = "CONFIG_NOT_DICT" 
-
-def byte2human( in_bytes:int|float)->str:
-    """Converts `int` and `float` bytes to human-readable string
-
-    E.g.:
-        >> print(byte2human(1024))
-        1Ki
-    """
-    if not( in_bytes > 0):
-        raise(ValueError("input must be positive int or float"))
-    magnitude = ('Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei')
-
-    id = min( max( 0, int(math.log2(in_bytes)/10) -1), len(magnitude) - 1 )
-    scaled_value = f"{in_bytes / (1 << ((1 + id)*10)):.1f}"
-    
-    if scaled_value.split('.')[-1] == '0':
-        scaled_value = scaled_value[:-2]
-    
-    return f"{scaled_value}{magnitude[id]}"
-
-def read_config(path_to_file='config.yaml'):
-    """
-    path_to_file : location of YAML configuration file
-    """
-    if not isinstance(path_to_file, Path):
-        path_to_file = Path(path_to_file)
-    
-    if not path_to_file.is_file():
-        raise(Exception(f"read_config:{FILE_ERROR}"))
-    
-    with open(path_to_file, 'r') as f:
-        content = yaml.safe_load(f)
-    if not isinstance(content, dict):
-        raise(Exception(f"read_config:{CONFIG_FORMAT_ERROR}"))
-    return content
-
-
-
-def machine_info():
-    """Provides machine information as a dict of strings with following keys:
-    
-    - hostname : hostname of the machine on the network,
-    - os : name of the operating system (OS),
-    - version : OS version,
-    - kernel : Linux kernel version (only on Linux),
-    - arch : CPU architecture, e.g., x64, arm64, etc..
-    - cpu : processor name,
-    - cpu_count : number of physical CPU cores and logical in parentheses, e.g. "32 (64 logical)",
-    - mem_tot : total physical memory (excludes swap).
-
-    """
-    ver = ''
-    kernel = ''
-    os_name = ''
-
-    match platform.system():
-        case 'Linux':
-            try:
-                os_ver_info = platform.freedesktop_os_release()
-                os_name = os_ver_info.get('ID', 'Linux')
-                ver = f"{os_ver_info.get('VERSION_ID', 'UNKNOWN')}"
-                if 'VARIANT_ID' in os_ver_info:
-                    ver = f"{ver} ({os_ver_info['VARIANT_ID']})"
-            except OSError:
-                os_name = "Linux"
-                ver = 'Unknown'
-            kernel = f'linux {platform.release()}'
-        case 'Darwin':
-            os_name = 'macos'
-            ver = platform.mac_ver()[0]
-            kernel = f"darwin {platform.release()}"
-        case 'Windows':
-            os_name = 'windows'
-            ver = platform.release()
-            kernel = platform.win32_ver()[1]
-
-    return {'hostname' : platform.node(),
-            'os' : os_name,
-            'version' : ver,
-            'kernel' : kernel,
-            'arch' : platform.machine(),
-            'cpu' : platform.processor(),
-            'cpu_count' : f"{psutil.cpu_count(logical=False)} ({psutil.cpu_count()} logical)",
-            'mem_tot' : byte2human(psutil.virtual_memory().total),
-            }
-
+from constants import *
+from read_config import read_config
+from convert import byte2human
+from info import machine_info
 
 class MachineMetric():
     _NUM_CPU =  psutil.cpu_count() # logical CPUs
@@ -118,6 +29,11 @@ class MachineMetric():
             self.storage_config = configs["storage"]
             if not isinstance(configs["storage"], dict):
                 self.errors += f"; MachineMetric storage_config:{CONFIG_FORMAT_ERROR}"
+            for mpname in self.storage_config:
+                if mpname == 'append':
+                    continue
+                if 'fstype' not in self.storage_config[mpname]:
+                    self.storage_config[mpname]['fstype'] = None
 
     def __str__(self) -> str:
         return f'{self.__class__.__name__}:'+pformat(self.info, sort_dicts=False)
@@ -146,11 +62,46 @@ class MachineMetric():
         return machine_metrics
 
     def _get_disk_usage(self):
+        try:
+            all_fstype = {p.mountpoint:p.fstype for p in psutil.disk_partitions(all=True)}
+            phys_mps = [p.mountpoint for p in psutil.disk_partitions(all=False)]
+        except Exception as e:
+            return f"Unexpected {e} when getting partitions"
+
         append = True
+        mountpoints = {}
         if (self.storage_config != None) and isinstance(self.storage_config, dict):
             if "append" in self.storage_config:
                 append = self.storage_config["append"]
-        return f"append:{append}"
+            for mpname in self.storage_config:
+                if mpname == "append":
+                    continue
+                mp = self.storage_config[mpname]['mountpoint']
+                if self.storage_config[mpname]['fstype'] is None:
+                    # no need to check is not specified
+                    mountpoints[mpname] = mp
+                    continue
+
+                # fstype != None, then check if mountpoint exists & has correct fstype
+                fstype = all_fstype.get(mp, None)
+                if (fstype != None) and (fstype == self.storage_config[mpname]['fstype']):
+                    mountpoints[mpname] = mp
+        if append:
+            for p in phys_mps:
+                mountpoints[p] = p
+
+        if not mountpoints:
+            return MP_ERROR
+        
+        disk_usage = []
+        for p in mountpoints:
+            try:
+                p_tot, _, p_free = shutil.disk_usage(mountpoints[p])
+                p_used = 100*(p_tot - p_free)/p_tot
+                disk_usage.append(f"{p}:{p_used:.1f}% ({byte2human(p_free)} free)")
+            except Exception as e:
+                disk_usage.append(f"{p}:{e}")
+        return "; ".join(disk_usage)
 
     @staticmethod
     def _get_memory_usage():
@@ -170,7 +121,7 @@ class MachineMetric():
             return ""
         
         load_str = map( lambda x: f"{(100 * x / ncpus) :.1f}%" , psutil.getloadavg() )
-        return " ".join(load_str)
+        return "; ".join(load_str)
 
     @staticmethod
     def _get_cpu_percent(percpu):

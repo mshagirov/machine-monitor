@@ -6,5 +6,5 @@ storage: # type of config -> storage
   hwnfs:
     mountpoint: "/hwnfs"
     fstype : "nfs"
-  opt:
-    mountpoint: "/opt" # important partition you might need to monitor
+  opterr:
+    mountpoint: "/error" # important partition you might need to monitor

@@ -1,5 +1,6 @@
 from monitor import MachineMetric
 from time import sleep
+from pprint import pp
 
 def main():
     m = MachineMetric(config='mm/config.yaml')
@@ -7,8 +8,8 @@ def main():
     print(m.errors)
     print(m.storage_config)
     for _ in range(3):
-        print(m.metrics())
-        sleep(2.5)
+        pp(m.metrics())
+        sleep(1)
 
 
 if __name__ == '__main__':
