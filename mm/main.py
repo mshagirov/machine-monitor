@@ -1,20 +1,12 @@
-from monitor import MachineMonitor
-from pprint import pp
+from monitor import MachineMetric
 from time import sleep
 
 def main():
-    m = MachineMonitor()
-    
-    print('m.info:\n')
-    pp(m.info)
-
-    print('m:')
+    m = MachineMetric()
     print(m)
-    print(m.__repr__())
-    
-    for _ in range(5):
+    for _ in range(3):
         print(m.metrics())
-        sleep(1)
+        sleep(5)
 
 
 if __name__ == '__main__':

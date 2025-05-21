@@ -33,8 +33,9 @@ def machine_info():
     - version : OS version,
     - kernel : Linux kernel version (only on Linux),
     - arch : CPU architecture, e.g., x64, arm64, etc..
-    - cpu : processor name
-    - cpu_count : number of physical CPU cores and logical in parentheses, e.g. "32 (64 logical)".
+    - cpu : processor name,
+    - cpu_count : number of physical CPU cores and logical in parentheses, e.g. "32 (64 logical)",
+    - mem_tot : total physical memory (excludes swap).
 
     """
     ver = ''
@@ -68,10 +69,14 @@ def machine_info():
             'kernel' : kernel,
             'arch' : platform.machine(),
             'cpu' : platform.processor(),
-            'cpu_count' : f"{psutil.cpu_count(logical=False)} ({psutil.cpu_count()} logical)",}
+            'cpu_count' : f"{psutil.cpu_count(logical=False)} ({psutil.cpu_count()} logical)",
+            'mem_tot' : byte2human(psutil.virtual_memory().total),
+            }
 
 
-class MachineMonitor():
+class MachineMetric():
+    _NUM_CPU =  psutil.cpu_count() # logical CPUs
+
     def __init__(self) -> None:
         self.info = machine_info()
 
@@ -86,24 +91,38 @@ class MachineMonitor():
         """Returns dict of strings with keys:
         
         - cpu_usage : CPU utilisation as a percentage; set "percpu=True" to get usage for cores
+        - cpu_load : Average CPU load over last 1, 5 and 15 minutes as a percentage. 
         - mem_usage :
         - disk_usage :
         - network_stats :
 
         """
         machine_metrics = {
-            'cpu_usage': self._get_cpu_usage(percpu),
+            'cpu_usage': self._get_cpu_percent(percpu),
+            'cpu_load' : self._get_cpu_load(),
             'mem_usage': self._get_memory_usage(),
             'disk_usage':self._get_disk_usage(),
             'network_stats': self._get_network_stats(),
         }
         return machine_metrics
 
+    def _get_cpu_load(self):
+        ncpus = self._NUM_CPU
+        if ncpus is None:
+            return ""
+
+        load = psutil.getloadavg()
+        if (len(load) < 3) or (None in load):
+            return ""
+        
+        load_str = map( lambda x: f"{(100 * x / ncpus) :.1f}%" , psutil.getloadavg() )
+        return " ".join(load_str)
+
     @staticmethod
-    def _get_cpu_usage(percpu):
+    def _get_cpu_percent(percpu):
         if percpu:
-            return " ".join(map(lambda c: f"{c:.1f}", psutil.cpu_percent(interval=.2, percpu=True)))
-        return f"{psutil.cpu_percent(interval=.2,percpu=False):.1f}"
+            return " ".join(map(lambda c: f"{c:.1f}%", psutil.cpu_percent(interval=.2, percpu=True)))
+        return f"{psutil.cpu_percent(interval=.2,percpu=False):.1f}%"
 
     @staticmethod
     def _get_memory_usage():
