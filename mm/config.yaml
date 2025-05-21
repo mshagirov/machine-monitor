@@ -1,0 +1,10 @@
+storage: # type of config -> storage
+  append : True # True or False, if True append following to the partitions found with psutil.get_partitions
+  gpfs0: # custom name for the mountpoint 
+    mountpoint: "/gpfs0" # mountpoint (if doesn't exist ?)
+    fstype : "gpfs" # filesystem type: checks fstype, if fstype does NOT match storage is assumed to be unmounted (optional)
+  hwnfs:
+    mountpoint: "/hwnfs"
+    fstype : "nfs"
+  opt:
+    mountpoint: "/opt" # important partition you might need to monitor

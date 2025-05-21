@@ -5,6 +5,12 @@ import shutil
 import math
 import platform
 from pprint import pformat
+from pathlib import Path
+import yaml
+
+
+FILE_ERROR = "FILE_NOT_FOUND"
+CONFIG_FORMAT_ERROR = "CONFIG_NOT_DICT" 
 
 def byte2human( in_bytes:int|float)->str:
     """Converts `int` and `float` bytes to human-readable string
@@ -24,6 +30,24 @@ def byte2human( in_bytes:int|float)->str:
         scaled_value = scaled_value[:-2]
     
     return f"{scaled_value}{magnitude[id]}"
+
+def read_config(path_to_file='config.yaml'):
+    """
+    path_to_file : location of YAML configuration file
+    """
+    if not isinstance(path_to_file, Path):
+        path_to_file = Path(path_to_file)
+    
+    if not path_to_file.is_file():
+        raise(Exception(f"read_config:{FILE_ERROR}"))
+    
+    with open(path_to_file, 'r') as f:
+        content = yaml.safe_load(f)
+    if not isinstance(content, dict):
+        raise(Exception(f"read_config:{CONFIG_FORMAT_ERROR}"))
+    return content
+
+
 
 def machine_info():
     """Provides machine information as a dict of strings with following keys:
@@ -77,8 +101,23 @@ def machine_info():
 class MachineMetric():
     _NUM_CPU =  psutil.cpu_count() # logical CPUs
 
-    def __init__(self) -> None:
+    def __init__(self, config=None) -> None:
         self.info = machine_info()
+        self.errors = ""
+        self.storage_config = None
+
+        if config == None:
+            return
+        try:
+            configs = read_config(config)
+        except Exception as e:
+            self.errors = str(e)
+            return
+
+        if "storage" in configs:
+            self.storage_config = configs["storage"]
+            if not isinstance(configs["storage"], dict):
+                self.errors += f"; MachineMetric storage_config:{CONFIG_FORMAT_ERROR}"
 
     def __str__(self) -> str:
         return f'{self.__class__.__name__}:'+pformat(self.info, sort_dicts=False)
@@ -92,7 +131,7 @@ class MachineMetric():
         
         - cpu_usage : CPU utilisation as a percentage; set "percpu=True" to get usage for cores
         - cpu_load : Average CPU load over last 1, 5 and 15 minutes as a percentage. 
-        - mem_usage :
+        - mem_usage : Physical memory utilisation as a percentage. Available free memory is included in parentheses. 
         - disk_usage :
         - network_stats :
 
@@ -105,6 +144,21 @@ class MachineMetric():
             'network_stats': self._get_network_stats(),
         }
         return machine_metrics
+
+    def _get_disk_usage(self):
+        append = True
+        if (self.storage_config != None) and isinstance(self.storage_config, dict):
+            if "append" in self.storage_config:
+                append = self.storage_config["append"]
+        return f"append:{append}"
+
+    @staticmethod
+    def _get_memory_usage():
+        try:
+            mem_usage = psutil.virtual_memory()
+            return f"{mem_usage.percent:.1f}% ({byte2human(mem_usage.available)} avail)"
+        except Exception as err:
+            return f"Unexpected {err} when getting memory usage"
 
     def _get_cpu_load(self):
         ncpus = self._NUM_CPU
@@ -123,15 +177,6 @@ class MachineMetric():
         if percpu:
             return " ".join(map(lambda c: f"{c:.1f}%", psutil.cpu_percent(interval=.2, percpu=True)))
         return f"{psutil.cpu_percent(interval=.2,percpu=False):.1f}%"
-
-    @staticmethod
-    def _get_memory_usage():
-        return None
-
-    @staticmethod
-    def _get_disk_usage():
-        # byte2human(1024**3) -> 1Gi
-        return None
 
     @staticmethod
     def _get_network_stats():
