@@ -6,7 +6,9 @@ def get_disk_usage(mountpoint):
     Returns None tuple if the mountpoint does not exist or an unexpected exception is encountered.
     """
     try:
-        return shutil.disk_usage(mountpoint) # disk disk usage in Bytes
+        usage_info = shutil.disk_usage(mountpoint) # disk disk usage in Bytes
     except Exception:
-        return None, None, None
+        usage_info = (None, None, None)
+    keys = ("tot", "used", "free")
+    return {k:usage_info[id] for id,k in enumerate(keys) }
 

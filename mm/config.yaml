@@ -1,10 +1,17 @@
 storage: # type of config -> storage
-  append : True # True or False, if True append following to the partitions found with psutil.get_partitions
+  append : True # True (default if omitted) or False, if True append following to the partitions found with psutil.get_partitions
   gpfs0: # custom name for the mountpoint 
     mountpoint: "/gpfs0" # mountpoint (if doesn't exist ?)
     fstype : "gpfs" # filesystem type: checks fstype, if fstype does NOT match storage is assumed to be unmounted (optional)
   hwnfs:
     mountpoint: "/hwnfs"
     fstype : "nfs"
-  opterr:
-    mountpoint: "/error" # important partition you might need to monitor
+  does_not_exist: # example that will generate error
+    mountpoint: "/error" # might use for important partition you might need to monitor
+    # fstype not checked since if it not specified
+network:
+  append : False #True # if True (default if omitted), show other interfaces after these, otherwise ignore others
+  localhost:
+    ifname: "lo*" # match start of the interface's name
+  internet:
+    ifname: "en0"

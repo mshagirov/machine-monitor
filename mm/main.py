@@ -7,6 +7,7 @@ def main():
     print(m)
     print(m.errors)
     print(m.storage_config)
+    print(m.network_config)
     for _ in range(3):
         pp(m.metrics())
         sleep(1)

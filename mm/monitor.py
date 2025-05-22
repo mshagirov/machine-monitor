@@ -5,7 +5,7 @@ import shutil
 from pprint import pformat
 
 from constants import *
-from read_config import read_config
+from config import get_network_config, read_config, get_storage_config
 from convert import byte2human
 from info import machine_info
 
@@ -26,14 +26,13 @@ class MachineMetric():
             return
 
         if "storage" in configs:
-            self.storage_config = configs["storage"]
-            if not isinstance(configs["storage"], dict):
-                self.errors += f"; MachineMetric storage_config:{CONFIG_FORMAT_ERROR}"
-            for mpname in self.storage_config:
-                if mpname == 'append':
-                    continue
-                if 'fstype' not in self.storage_config[mpname]:
-                    self.storage_config[mpname]['fstype'] = None
+            self.storage_config, storage_errors = get_storage_config(configs)
+            if storage_errors != None:
+                self.errors += f"; {storage_errors}"
+        if "network" in configs:
+            self.network_config, if_errors = get_network_config(configs)
+            if if_errors != None:
+                self.errors += f"; {if_errors}"
 
     def __str__(self) -> str:
         return f'{self.__class__.__name__}:'+pformat(self.info, sort_dicts=False)
@@ -61,6 +60,50 @@ class MachineMetric():
         }
         return machine_metrics
 
+    def _get_network_stats(self):
+        try:
+            if_stats = psutil.net_if_stats()
+        except Exception as e:
+            return f"Error {e}{type(e)} when getting net_if_stats" 
+        
+        append = True # default
+        net_ifs = {}
+        if self.network_config != None:
+            if "append" in self.network_config:
+                append = self.network_config["append"]
+            for iname in self.network_config:
+                if iname == "append":
+                    continue
+                ifname = self.network_config[iname].get('ifname', None)
+                if (ifname is None) or (ifname in net_ifs.values()):
+                    continue
+                elif ifname.endswith('*'):
+                    for i in if_stats:
+                        if i in net_ifs.values():
+                            continue
+                        if i.startswith(ifname[:-1]):
+                            net_ifs[i] = i
+                    continue
+                net_ifs[iname] = ifname
+                
+        if append:
+            for i in if_stats:
+                if i in net_ifs.values():
+                    continue
+                net_ifs[i] = i
+        if not net_ifs:
+            return IF_ERROR
+        if_info = []
+        for ifname, i in net_ifs.items():
+            ifalias = i if i==ifname else f"{ifname}({i})"
+            try:
+                isup = "up" if if_stats[i].isup else "down"
+                ifspeed = if_stats[i].speed if if_stats[i].speed>0 else 'NA'
+                if_info.append(f"{ifalias}:{isup},speed={ifspeed}")
+            except Exception as e:
+                if_info.append(f"{ifalias}:{e}")
+        return "; ".join(if_info)
+
     def _get_disk_usage(self):
         try:
             all_fstype = {p.mountpoint:p.fstype for p in psutil.disk_partitions(all=True)}
@@ -68,9 +111,9 @@ class MachineMetric():
         except Exception as e:
             return f"Unexpected {e} when getting partitions"
 
-        append = True
+        append = True # default
         mountpoints = {}
-        if (self.storage_config != None) and isinstance(self.storage_config, dict):
+        if self.storage_config != None:
             if "append" in self.storage_config:
                 append = self.storage_config["append"]
             for mpname in self.storage_config:
@@ -88,6 +131,8 @@ class MachineMetric():
                     mountpoints[mpname] = mp
         if append:
             for p in phys_mps:
+                if p in mountpoints.values():
+                    continue
                 mountpoints[p] = p
 
         if not mountpoints:
@@ -128,10 +173,4 @@ class MachineMetric():
         if percpu:
             return " ".join(map(lambda c: f"{c:.1f}%", psutil.cpu_percent(interval=.2, percpu=True)))
         return f"{psutil.cpu_percent(interval=.2,percpu=False):.1f}%"
-
-    @staticmethod
-    def _get_network_stats():
-        #psutil.net_if_stats()
-        return None
-
 

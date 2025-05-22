@@ -7,6 +7,8 @@ def byte2human( in_bytes:int|float)->str:
         >> print(byte2human(1024))
         1Ki
     """
+    if not (isinstance(in_bytes, int) or isinstance(in_bytes, float)):
+        raise(ValueError(f"expected input type int|float, got {type(in_bytes)} "))
     if not( in_bytes > 0):
         raise(ValueError("input must be positive int or float"))
     magnitude = ('Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei')
