@@ -22,7 +22,7 @@ python3 -m venv .venv
 3. Activate the enviroment and install the requirements:
 
 ```bash
-source .venv/bin/Activate
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
