@@ -5,7 +5,8 @@ import shutil
 from pprint import pformat
 
 from constants import *
-from config import get_network_config, read_config, get_storage_config
+from network import check_connection
+from config import get_network_config, read_config, get_storage_config, get_connection_config
 from convert import byte2human
 from info import machine_info
 
@@ -28,11 +29,15 @@ class MachineMetric():
         if "storage" in configs:
             self.storage_config, storage_errors = get_storage_config(configs)
             if storage_errors != None:
-                self.errors += f"; {storage_errors}"
+                self.errors += f"; storage:{storage_errors}"
         if "network" in configs:
             self.network_config, if_errors = get_network_config(configs)
             if if_errors != None:
-                self.errors += f"; {if_errors}"
+                self.errors += f"; net:{if_errors}"
+        if "connection" in configs:
+            self.connection_config, conn_errors = get_connection_config(configs)
+            if conn_errors != None:
+                self.errors += f"; conn:{conn_errors}"
 
     def __str__(self) -> str:
         return f'{self.__class__.__name__}:'+pformat(self.info, sort_dicts=False)
@@ -57,8 +62,32 @@ class MachineMetric():
             'mem_usage': self._get_memory_usage(),
             'disk_usage':self._get_disk_usage(),
             'network_stats': self._get_network_stats(),
+            'connections': self._get_check_connection(),
         }
         return machine_metrics
+
+    def _get_check_connection(self):
+        if self.connection_config == None:
+            return ""
+        connections = []
+        for alias, props in self.connection_config.items():
+            try:
+                conn_name = alias if alias == props.get('host') else f"{alias}({props.get('host')})"
+
+                ok, err = check_connection(props.get('host'), props.get('port'), 3)
+                res = "up" if ok else "down"
+                
+                res_fmt = f"{conn_name}:{props.get('port')}={res}"
+                if err != None:
+                    res_fmt += f" {err}"
+                connections.append(res_fmt)
+            except Exception as e:
+                connections.append(f"{alias}:error {e}{type(e)}")
+
+        if not connections:
+            return CONN_ERROR
+
+        return "; ".join(connections)
 
     def _get_network_stats(self):
         try:
@@ -74,7 +103,7 @@ class MachineMetric():
             for iname in self.network_config:
                 if iname == "append":
                     continue
-                ifname = self.network_config[iname].get('ifname', None)
+                ifname = self.network_config[iname].get('ifname')
                 if (ifname is None) or (ifname in net_ifs.values()):
                     continue
                 elif ifname.endswith('*'):
@@ -126,7 +155,7 @@ class MachineMetric():
                     continue
 
                 # fstype != None, then check if mountpoint exists & has correct fstype
-                fstype = all_fstype.get(mp, None)
+                fstype = all_fstype.get(mp)
                 if (fstype != None) and (fstype == self.storage_config[mpname]['fstype']):
                     mountpoints[mpname] = mp
         if append:

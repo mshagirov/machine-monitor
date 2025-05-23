@@ -15,3 +15,12 @@ network:
     ifname: "lo*" # match start of the interface's name
   internet:
     ifname: "en0"
+connection:
+  # checks connection to following (host, port) pairs
+  google-dns:
+    host: "8.8.8.8"
+    port: 53
+  nus-dns:
+    host: "172.19.50.35"
+    port: 53 
+
