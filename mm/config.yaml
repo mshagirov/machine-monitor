@@ -1,10 +1,12 @@
 storage: # type of config -> storage
-  append : True # True (default if omitted) or False, if True append following to the partitions found with psutil.get_partitions
+  append : False # True (default if omitted) or False, if True append following to the partitions found with psutil.get_partitions
+  root_dir:
+    mountpoint: "/"
   gpfs0: # custom name for the mountpoint 
     mountpoint: "/gpfs0" # mountpoint (if doesn't exist ?)
     fstype : "gpfs" # filesystem type: checks fstype, if fstype does NOT match storage is assumed to be unmounted (optional)
-  hwnfs:
-    mountpoint: "/hwnfs"
+  nfsshare:
+    mountpoint: "/mynfs"
     fstype : "nfs"
   does_not_exist: # example that will generate error
     mountpoint: "/error" # might use for important partition you might need to monitor
@@ -20,7 +22,4 @@ connection:
   google-dns:
     host: "8.8.8.8"
     port: 53
-  nus-dns:
-    host: "172.19.50.35"
-    port: 53 
 
