@@ -70,9 +70,9 @@ Connection config-s:
 
 ## Notes
 
-`network_stats` and `connections` metrics work only for Unix machines and are not accurate for MacOS. On Linux, these should show connection or interface as down and show errors in the metrics fileds (e.g., "timeout").
+`network_stats` and `connections` metrics work only for Unix machines and are not accurate for MacOS. On Linux, these should correctly detect and show connection or interface as "down" and show errors in the metrics fields (e.g., "timeout") if the interface or connection is down.
 
-On MacOS, `network_stats` only checks if the interface exists and does not detect if it is disconnected, and `connections` always shows as up even when it should be down. Hence these functionalities should be reimplemented for MacOS, e.g., using MacOS' `ipconfig` tool. Currently, I do not need this functionality on MacOS and do not plan to work on it, at least in the foreseeable future.
+On MacOS, `network_stats` only checks if the interface exists and does not detect if it is disconnected. `connections` always shown as "up" even when it should be "down". Hence these functionalities should be reimplemented for MacOS, e.g., using MacOS' `ipconfig` tool. Currently, I do not need this functionality on MacOS and do not plan to work on it, at least in the foreseeable future.
 
 ## Future Plans (for Linux)
 
