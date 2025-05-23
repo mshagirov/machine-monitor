@@ -26,7 +26,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Test the `monitor.MachineMetric`:
+4. Test `monitor.MachineMetric`:
 
 
 ```bash
