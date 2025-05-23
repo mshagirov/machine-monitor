@@ -37,7 +37,7 @@ Above should print information about the machine, e.g.:
 
 ```
 ------------------------ Information about the machine -------------------------
-{'hostname': 'msmacair',
+{'hostname': 'macair',
  'os': 'macos',
  'version': '15.5',
  'kernel': 'darwin 24.5.0',
