@@ -52,8 +52,13 @@ class MachineMetric():
         - cpu_usage : CPU utilisation as a percentage; set "percpu=True" to get usage for cores
         - cpu_load : Average CPU load over last 1, 5 and 15 minutes as a percentage. 
         - mem_usage : Physical memory utilisation as a percentage. Available free memory is included in parentheses. 
-        - disk_usage :
-        - network_stats :
+        - disk_usage : check storage usage of the partitions, output depends on the *optional* "storage" configuration
+                       section of the input config.yaml file.
+        - network_stats : check network interfaces, output depends on the *optional* "network" configuration section of
+                          the input config.yaml file.
+        - connections : check connections to hosts on the network, *requires* (host, port) pairs to be specified in the
+                        input config.yaml.
+        network_stats and connections metrics show accurate information about the interface/connection ONLY in Linux OS. 
 
         """
         machine_metrics = {
