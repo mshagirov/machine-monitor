@@ -112,7 +112,7 @@ curl -X 'GET' 'http://IP_ADDRESS:PORT/' -H 'accept: application/json'
 ```
 
 where `IP_ADDRESS` is your machine's IP address on the network and `PORT` is the port that the API is running on. This should prompt the system
-to request for permission to allow Python to expose the service to the network. Then, you should be able to go to "http://IP_ADDRESS:PORT/info" and "http://IP_ADDRESS:PORT/metrics" to view machine information and metrics respectively.
+to request for permission to allow Python to expose the service to the network. Then, you should be able to go to `http://IP_ADDRESS:PORT/info` and `http://IP_ADDRESS:PORT/metrics` to view machine information and metrics respectively.
 
 ## Future Plans (for Linux)
 
