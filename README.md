@@ -81,14 +81,38 @@ On MacOS, `network_stats` only checks if the interface exists and does not detec
 
 > Uses FastAPI
 
+### Testing and Development
+
+Test API by running `dev.sh`:
+
 ```bash
-./dev
+./dev.sh
 ```
+
+To run API using the default port 8000, run `run.sh` 
+
+```bash
+./run.sh
+```
+
+or specify a port number to expose with `-p PORT`, e.g.,
+
+```bash
+./run.sh -p 8888
+```
+
+If your system blocks Python from using the port (i.e. MacOS), try using curl to get the metrics/info from CLI, e.g. in terminal run:
+
+```bash
+curl -X 'GET' 'http://IP_ADDRESS:PORT/' -H 'accept: application/json'
+```
+
+where `IP_ADDRESS` is your machine's IP address on the network and `PORT` is the port that the API is running on. This should prompt the system
+to request for permission to allow Python to expose the service to the network. Then, you should be able to go to "http://IP_ADDRESS:PORT/" and "http://IP_ADDRESS:PORT/metrics" to view machine information and metrics respectively.
 
 ## Future Plans (for Linux)
 
 Future plans to add following functionality
 
-- [ ] Network API to query remote machines
 - [ ] CLI monitoring interface
 
