@@ -7,14 +7,13 @@ from monitor import MachineMetric
 m = MachineMetric(config='mm/config.yaml')
 app = FastAPI()
 
-@app.get("/")
-async def root():
+@app.get("/info")
+async def info():
     return m.info
 
 @app.get("/metrics")
 async def metrics():
-    res = {'datetime':datetime.now().strftime("%d-%m-%Y %H:%M:%S.%f")}
-    for key, val in m.metrics().items():
-        res[key] = val
+    res = m.metrics()
+    res['timestamp'] = datetime.now().strftime("%d-%m-%Y %H:%M:%S.%f")
     return res
 
