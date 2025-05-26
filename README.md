@@ -89,7 +89,7 @@ To test API, run `dev.sh`:
 ./dev.sh
 ```
 
-then open `http://127.0.0.1:8000/info` or `http://127.0.0.1:8000/metrics` to view machine information and metrics respectively. Also, FastAPI automatically builds documentation for these functions. The documentation can be view at `http://127.0.0.1:8000/docs`.
+then open `http://127.0.0.1:8000/info` or `http://127.0.0.1:8000/metrics` to view machine information and metrics respectively. Also, FastAPI automatically builds documentation for these functions. The documentation can be viewed at `http://127.0.0.1:8000/docs`.
 
 ### Running API
 
