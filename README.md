@@ -69,7 +69,7 @@ Connection config-s:
 
 ## Configuring Storage, Network, and Connection Metrics
 
-Edit `mm/config.yaml` by following the comments to configure what storage, network and connection metrics check and print.
+Use the above example script and edit `mm/config.yaml` by following the comments to configure storage, network and connection metrics reporting.
 
 ## Notes
 
