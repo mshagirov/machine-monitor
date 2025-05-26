@@ -79,15 +79,17 @@ On MacOS, `network_stats` only checks if the interface exists and does not detec
 
 ## API
 
-> Uses FastAPI
+> Uses FastAPI to serve machine information (`/info`) and metrics (`/metrics`) over network
 
 ### Testing and Development
 
-Test API by running `dev.sh`:
+To test API, run `dev.sh`:
 
 ```bash
 ./dev.sh
 ```
+
+then open `http://127.0.0.1:8000/info` or `http://127.0.0.1:8000/metrics` to view machine information and metrics respectively. Also, FastAPI automatically builds documentation for these functions. The documentation can be view at `http://127.0.0.1:8000/docs`.
 
 ### Running API
 
@@ -110,11 +112,11 @@ curl -X 'GET' 'http://IP_ADDRESS:PORT/' -H 'accept: application/json'
 ```
 
 where `IP_ADDRESS` is your machine's IP address on the network and `PORT` is the port that the API is running on. This should prompt the system
-to request for permission to allow Python to expose the service to the network. Then, you should be able to go to "http://IP_ADDRESS:PORT/" and "http://IP_ADDRESS:PORT/metrics" to view machine information and metrics respectively.
+to request for permission to allow Python to expose the service to the network. Then, you should be able to go to "http://IP_ADDRESS:PORT/info" and "http://IP_ADDRESS:PORT/metrics" to view machine information and metrics respectively.
 
 ## Future Plans (for Linux)
 
 Future plans to add following functionality
 
 - [ ] CLI monitoring interface
-
+- [ ] Remote client interface
