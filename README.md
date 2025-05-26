@@ -29,7 +29,7 @@ pip install -r requirements.txt
 4. Test `monitor.MachineMetric`:
 
 ```bash
-python mm/example_metrics.py
+./example.sh
 ```
 
 Above should print information about the machine, e.g.:
@@ -88,6 +88,8 @@ Test API by running `dev.sh`:
 ```bash
 ./dev.sh
 ```
+
+### Running API
 
 To run API using the default port 8000, run `run.sh` 
 
