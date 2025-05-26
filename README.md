@@ -28,7 +28,6 @@ pip install -r requirements.txt
 
 4. Test `monitor.MachineMetric`:
 
-
 ```bash
 python mm/example_metrics.py
 ```
@@ -68,11 +67,23 @@ Connection config-s:
 {'google-dns': {'host': '8.8.8.8', 'port': 53}}
 ```
 
+## Configuring Storage, Network, and Connection Metrics
+
+Edit `mm/config.yaml` by following the comments to configure what storage, network and connection metrics check and print.
+
 ## Notes
 
 `network_stats` and `connections` metrics work only for Unix machines and are not accurate for MacOS. On Linux, these should correctly detect and show connection or interface as "down" and show errors in the metrics fields (e.g., "timeout") if the interface or connection is down.
 
 On MacOS, `network_stats` only checks if the interface exists and does not detect if it is disconnected. `connections` always shown as "up" even when it should be "down". Hence these functionalities should be reimplemented for MacOS, e.g., using MacOS' `ipconfig` tool. Currently, I do not need this functionality on MacOS and do not plan to work on it, at least in the foreseeable future.
+
+## API
+
+> Uses FastAPI
+
+```bash
+./dev
+```
 
 ## Future Plans (for Linux)
 
