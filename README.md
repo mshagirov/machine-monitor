@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 
 ```bash
-./main.sh
+python mm/example_metrics.py
 ```
 
 Above should print information about the machine, e.g.:
