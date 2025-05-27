@@ -9,6 +9,7 @@ Help()
   echo "options:"
   echo "-h           Print this help." 
   echo "-p <PORT>   Port number (int) to use instead of default 8000"
+  echo "-i <HOST>   Host IP address, defaults to 0.0.0.0 (all interfaces)"
 }
 
 # if [[ "$#" -lt 1 ]]; then PORT=8000; fi
