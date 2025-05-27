@@ -9,14 +9,14 @@ Help()
   echo
   echo "Options:"
   echo "-h          Print this help" 
-  echo "-b          Run in a background, must be used with '&', e.g. 'nohup ./run.sh -b &'"
+  echo "-d          Run in detached mode in the background, e.g. './run.sh -d'"
   echo "-p <PORT>   Port number (int) to use instead of default 8000"
   echo "-i <HOST>   Host IP address, defaults to 0.0.0.0 (all interfaces)"
   echo 
   echo "NOTE: Don not forget to close the program when running in the background."
 }
 
-while getopts ":hp:i:b" option; do
+while getopts ":hp:i:d" option; do
   case $option in 
     h) #help
       Help
@@ -28,7 +28,7 @@ while getopts ":hp:i:b" option; do
     i) #host address
       HOST=${OPTARG}
       ;;
-    b) #run in a background
+    d) #run in a background
       BACKGROUND="True"
       ;;
     *) #invalid options
@@ -51,5 +51,4 @@ if [[ $BACKGROUND != "" ]] ; then
 else
     fastapi run --port $PORT --host $HOST mm/api.py
 fi
-
 

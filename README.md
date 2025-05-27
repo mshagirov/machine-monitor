@@ -114,12 +114,12 @@ curl -X 'GET' 'http://IP_ADDRESS:PORT/' -H 'accept: application/json'
 where `IP_ADDRESS` is your machine's IP address on the network and `PORT` is the port that the API is running on. This should prompt the system
 to request for permission to allow Python to expose the service to the network. Then, you should be able to go to `http://IP_ADDRESS:PORT/info` and `http://IP_ADDRESS:PORT/metrics` to view machine information and metrics respectively.
 
-### Running API in a Background
+### Running API in Detached Mode
 
-Use `-o` option to run the API server in the background.
+Use `-d` option to run the API server in the background.
 
 ```bash
-./run.sh -b
+./run.sh -d
 ```
 
 Check the PID of the parent process (bash) by reading `current_run.out`
@@ -131,7 +131,7 @@ cat current_run.out
 pgrep -P PARENT
 ```
 
-The last command print the PID of the FastAPI server running in the background. You can kill this process with `kill -9 PID` when you do not need it any longer.
+The last command prints the PID of the FastAPI server running in the background. You can kill this process with `kill -9 PID` when you do not need it any longer.
 In case if you accidentally close the parent process, you can search the child's PID with `ps aux | grep fastapi`. Closing the parent process does not close the child
 API server.
 
