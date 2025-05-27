@@ -119,4 +119,6 @@ to request for permission to allow Python to expose the service to the network. 
 Future plans to add following functionality
 
 - [ ] CLI monitoring interface
+- [ ] Container image (for runnning as a service)
 - [ ] Remote client interface
+
