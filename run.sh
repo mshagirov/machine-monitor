@@ -42,11 +42,16 @@ if [[ $PORT == "" ]]; then PORT=8000; fi
 
 if [[ $HOST == "" ]]; then HOST="0.0.0.0"; fi
 
-echo HOST:PORT = $HOST:$PORT
+ParentPID=$$
+
+echo "Parent=$ParentPID; HOST:PORT=$HOST:$PORT" > current_run.out
 
 if [[ $BACKGROUND != "" ]] ; then
-    $0 -p ${PORT} -i ${HOST} </dev/null &>/dev/null
+    nohup $0 -p ${PORT} -i ${HOST} >/dev/null 2>&1 &
 else
     fastapi run --port $PORT --host $HOST mm/api.py
 fi
+
+echo PID=$(pgrep -P $ParentPID) >> current_run.out
+
 
