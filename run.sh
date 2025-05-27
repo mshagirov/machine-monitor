@@ -11,9 +11,9 @@ Help()
   echo "-p <PORT>   Port number (int) to use instead of default 8000"
 }
 
-if [[ "$#" -ne 1 ]]; then PORT=8000; fi
+# if [[ "$#" -lt 1 ]]; then PORT=8000; fi
 
-while getopts ":hp:" option; do
+while getopts ":hp:i:" option; do
   case $option in 
     h) #help
       Help
@@ -22,6 +22,9 @@ while getopts ":hp:" option; do
     p) #port
       PORT=${OPTARG}
       ;;
+    i) #host address
+      HOST=${OPTARG}
+      ;;
     *) #invalid options
       Help
       exit
@@ -29,4 +32,10 @@ while getopts ":hp:" option; do
   esac
 done
 
-fastapi run --port $PORT mm/api.py
+if [[ $PORT == "" ]]; then PORT=8000; fi
+
+if [[ $HOST == "" ]]; then HOST="0.0.0.0"; fi
+
+echo HOST:PORT = $HOST:$PORT
+
+fastapi run --port $PORT --host $HOST mm/api.py
