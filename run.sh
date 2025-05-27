@@ -5,7 +5,7 @@ Help()
   # Display Help
   echo "Run API server at a given port (default port 8000)"
   echo ""
-  echo "Usage: $0 [-p PORT]"
+  echo "Usage: $0 [-p PORT] [-i HOST]"
   echo "options:"
   echo "-h           Print this help." 
   echo "-p <PORT>   Port number (int) to use instead of default 8000"
