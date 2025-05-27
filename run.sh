@@ -52,6 +52,4 @@ else
     fastapi run --port $PORT --host $HOST mm/api.py
 fi
 
-echo PID=$(pgrep -P $ParentPID) >> current_run.out
-
 
