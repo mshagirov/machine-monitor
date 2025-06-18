@@ -139,7 +139,8 @@ API server.
 
 Future plans to add following functionality
 
-- [ ] CLI monitoring interface
+- [ ] CLI monitoring interface (local and remote monitoring)
+- [ ] Add GPU information
 - [ ] Container image (for runnning as a service)
 - [ ] Remote client interface
 
