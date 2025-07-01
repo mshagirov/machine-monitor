@@ -3,6 +3,7 @@
 import psutil
 import shutil
 from pprint import pformat
+from pathlib import Path
 
 from constants import *
 from network import check_connection
@@ -13,7 +14,7 @@ from info import machine_info
 class MachineMetric():
     _NUM_CPU =  psutil.cpu_count() # logical CPUs
 
-    def __init__(self, config=None) -> None:
+    def __init__(self, config : None | str | Path =None) -> None:
         self.info = machine_info()
         self.errors = ""
         self.storage_config = None

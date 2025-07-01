@@ -1,7 +1,5 @@
 from datetime import datetime
-
 from fastapi import FastAPI
-
 from monitor import MachineMetric
 
 m = MachineMetric(config='mm/config.yaml')
