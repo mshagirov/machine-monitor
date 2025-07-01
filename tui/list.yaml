@@ -1,0 +1,3 @@
+monitor:
+  # List machines' name and "IP:PORT" (or "hostname:PORT");
+  localhost: "localhost:8000"
