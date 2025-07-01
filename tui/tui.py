@@ -1,10 +1,10 @@
 from pathlib import Path
-import re
-import sys, os
+from re import S
+import sys
 import requests
 
 from textual.app import App, ComposeResult
-from textual.widgets import Footer, Header
+from textual.widgets import Footer, Static #Header
 from textual.binding import Binding
 
 from config import get_list
@@ -36,17 +36,25 @@ def valid_list(nodes):
 class MachineMonitor(App):
     """A Terminal app to monitor machines over the network via requests API"""
 
+    CSS = """\
+#title {
+    content-align-horizontal: center;
+    text-style: reverse;
+}
+"""
     # Key bindings
     BINDINGS = [('d', 'toggle_dark', 'Toggle dark mode'),
                 Binding('q', 'quit', 'Quit', show=False, priority=True)]
 
     def compose(self) -> ComposeResult:
-        yield Header(name='Machines', show_clock=True)
+        self.theme = "catppuccin-mocha"
+        # yield Header(name='Machines', show_clock=True)
+        yield Static(' Machine Monitor ', id='title')
         yield Footer()
 
     def action_toggle_dark(self) -> None:
         self.theme = (
-            "textual-dark" if self.theme == "textual-light" else "textual-light"
+            "catppuccin-mocha" if self.theme == "catppuccin-latte" else "catppuccin-latte"
         )
 
 
@@ -72,6 +80,6 @@ if __name__ == "__main__":
         print(node_name)
         print(get_info(url))
         print(get_metrics(url))
-    # app = MachineMonitor()
-    # app.run()
+    app = MachineMonitor()
+    app.run()
 
