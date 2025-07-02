@@ -1,37 +1,23 @@
+from asyncio import sleep
 from pathlib import Path
-from re import S
 import sys
-import requests
 
-from textual.app import App, ComposeResult
+from textual import work
+from textual.reactive import reactive
+from textual.app import App, ComposeResult, RenderResult
+from textual.widget import Widget
 from textual.widgets import Footer, Static #Header
 from textual.binding import Binding
 
-from config import get_list
+from config import read_config, valid_monitor_list
+from getrequest import http_get
 
-exp_char_ = "┣"
-col_char_ = "╠"
 
-def get_info(hostname : str):
-    try:
-        res = requests.get("http://" + hostname + "/info", headers={"accept": "application/json"})
-        return res.json()
-    except Exception as e:
-        return {'error':str(e)}
+class Rows(Widget):
+    content = reactive("metrics")
 
-def get_metrics(hostname : str):
-    try:
-        res = requests.get("http://" + hostname + "/metrics", headers={"accept": "application/json"})
-        return res.json()
-    except Exception as e:
-        return {'error':str(e)}
-
-def valid_list(nodes):
-    if not isinstance(nodes.get('monitor'), dict):
-        return False
-    if len(nodes.get('monitor')) < 1:
-        return False
-    return True
+    def render(self) -> RenderResult:
+        return f"{self.content}"
 
 class MachineMonitor(App):
     """A Terminal app to monitor machines over the network via requests API"""
@@ -46,11 +32,28 @@ class MachineMonitor(App):
     BINDINGS = [('d', 'toggle_dark', 'Toggle dark mode'),
                 Binding('q', 'quit', 'Quit', show=False, priority=True)]
 
+    monitor = {}
+
     def compose(self) -> ComposeResult:
         self.theme = "catppuccin-mocha"
-        # yield Header(name='Machines', show_clock=True)
         yield Static(' Machine Monitor ', id='title')
+        yield Rows()
         yield Footer()
+
+    
+    def on_mount(self) -> None:
+        self.load_data()
+
+    @work
+    async def load_data(self) -> None:
+        while True:
+            if len(self.monitor) < 1:
+                self.query_one(Rows).content = "hosts list is empty"
+            else:
+                for k, v in self.monitor.items():
+                    self.query_one(Rows).content = f"{k} :\n\t{http_get(v, "metrics")}"
+                    break
+            await sleep(5)
 
     def action_toggle_dark(self) -> None:
         self.theme = (
@@ -67,19 +70,20 @@ if __name__ == "__main__":
         path_to_list = Path(__file__).resolve().parent / "list.yaml"
 
     try:
-        nodes = get_list(path_to_list)
+        nodes = read_config(path_to_list)
     except Exception as e:
         print(e)
         sys.exit(1)
 
-    if not valid_list(nodes):
+    if not valid_monitor_list(nodes):
         print(f"Monitoring list is empty:\n\t{path_to_list}")
         sys.exit(1)
 
-    for node_name, url in nodes['monitor'].items():
-        print(node_name)
-        print(get_info(url))
-        print(get_metrics(url))
+    # for node_name, url in nodes['monitor'].items():
+    #     print(node_name)
+    #     print(http_get(url, 'info'))
+    #     print(http_get(url, 'metrics'))
     app = MachineMonitor()
+    app.monitor = nodes['monitor']
     app.run()
 
