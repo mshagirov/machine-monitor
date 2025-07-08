@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 Above should print information about the machine, e.g.:
 
-```
+```sh
 ------------------------ Information about the machine -------------------------
 {'hostname': 'macair',
  'os': 'macos',
@@ -69,17 +69,26 @@ Connection config-s:
 
 ## Configuring Storage, Network, and Connection Metrics
 
-Use the above example script and edit `mm/config.yaml` by following the comments to configure storage, network and connection metrics reporting.
+Use the above example script and edit `mm/config.yaml` by following the comments
+to configure storage, network and connection metrics reporting.
 
 ## Notes
 
-`network_stats` and `connections` metrics work only for Unix machines and are not accurate for MacOS. On Linux, these should correctly detect and show connection or interface as "down" and show errors in the metrics fields (e.g., "timeout") if the interface or connection is down.
+`network_stats` and `connections` metrics work only for Unix machines and are
+not accurate for MacOS. On Linux, these should correctly detect and show
+connection or interface as "down" and show errors in the metrics fields (e.g.,
+"timeout") if the interface or connection is down.
 
-On MacOS, `network_stats` only checks if the interface exists and does not detect if it is disconnected. `connections` always shown as "up" even when it should be "down". Hence these functionalities should be reimplemented for MacOS, e.g., using MacOS' `ipconfig` tool. Currently, I do not need this functionality on MacOS and do not plan to work on it, at least in the foreseeable future.
+On MacOS, `network_stats` only checks if the interface exists and does not
+detect if it is disconnected. `connections` always shown as "up" even when it
+should be "down". Hence these functionalities should be reimplemented for MacOS,
+e.g., using MacOS' `ipconfig` tool. Currently, I do not need this functionality
+on MacOS and do not plan to work on it, at least in the foreseeable future.
 
 ## API
 
-> Uses FastAPI to serve machine information (`/info`) and metrics (`/metrics`) over network
+> Uses FastAPI to serve machine information (`/info`) and metrics (`/metrics`)
+over network
 
 ### Testing and Development
 
@@ -89,11 +98,13 @@ To test API, run `dev.sh`:
 ./dev.sh
 ```
 
-then open `http://127.0.0.1:8000/info` or `http://127.0.0.1:8000/metrics` to view machine information and metrics respectively. Also, FastAPI automatically builds documentation for these functions. The documentation can be viewed at `http://127.0.0.1:8000/docs`.
+then open `http://127.0.0.1:8000/info` or `http://127.0.0.1:8000/metrics` to
+view machine information and metrics respectively. Also, FastAPI automatically
+builds documentation for these functions. The documentation can be viewed at `http://127.0.0.1:8000/docs`.
 
 ### Running API
 
-To run API using the default port 8000, run `run.sh` 
+To run API using the default port 8000, run `run.sh`:
 
 ```bash
 ./run.sh
@@ -105,14 +116,18 @@ or specify a port number to expose with `-p PORT`, e.g.,
 ./run.sh -p 8888
 ```
 
-If your system blocks Python from using the port (i.e. MacOS), try using curl to get the metrics/info from CLI, e.g. in terminal run:
+If your system blocks Python from using the port (i.e. MacOS), try using curl to
+get the metrics/info from CLI, e.g. in terminal run:
 
 ```bash
 curl -X 'GET' 'http://IP_ADDRESS:PORT/' -H 'accept: application/json'
 ```
 
-where `IP_ADDRESS` is your machine's IP address on the network and `PORT` is the port that the API is running on. This should prompt the system
-to request for permission to allow Python to expose the service to the network. Then, you should be able to go to `http://IP_ADDRESS:PORT/info` and `http://IP_ADDRESS:PORT/metrics` to view machine information and metrics respectively.
+where `IP_ADDRESS` is your machine's IP address on the network and `PORT` is the
+port that the API is running on. This should prompt the system to request for
+permission to allow Python to expose the service to the network. Then, you
+should be able to go to `http://IP_ADDRESS:PORT/info` and
+`http://IP_ADDRESS:PORT/metrics` to view machine information and metrics respectively.
 
 ### Running API in Detached Mode
 
@@ -131,8 +146,10 @@ cat current_run.out
 pgrep -P PARENT
 ```
 
-The last command prints the PID of the FastAPI server running in the background. You can kill this process with `kill -9 PID` when you do not need it any longer.
-In case if you accidentally close the parent process, you can search the child's PID with `ps aux | grep fastapi`. Closing the parent process does not close the child
+The last command prints the PID of the FastAPI server running in the background.
+You can kill this process with `kill -9 PID` when you do not need it any longer.
+In case if you accidentally close the parent process, you can search the child's
+PID with `ps aux | grep fastapi`. Closing the parent process does not close the child
 API server.
 
 ## Future Plans (for Linux)
@@ -143,4 +160,3 @@ Future plans to add following functionality
 - [ ] Add GPU information
 - [ ] Container image (for runnning as a service)
 - [ ] Remote client interface
-
