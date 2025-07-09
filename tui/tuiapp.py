@@ -1,23 +1,23 @@
 from asyncio import sleep
-from pathlib import Path
-import sys
 
 from textual import work
 from textual.reactive import reactive
 from textual.app import App, ComposeResult, RenderResult
 from textual.widget import Widget
-from textual.widgets import Footer, Static #Header
+from textual.widgets import Footer, Static, DataTable #Header
 from textual.binding import Binding
-
-from config import read_config, valid_monitor_list
 from getrequest import http_get
-
+from columns import column_names_, make_row
 
 class Rows(Widget):
     content = reactive("metrics")
 
     def render(self) -> RenderResult:
         return f"{self.content}"
+
+class Table(Widget):
+    columns = reactive("column names")
+
 
 class MachineMonitor(App):
     """A Terminal app to monitor machines over the network via requests API"""
@@ -38,52 +38,38 @@ class MachineMonitor(App):
         self.theme = "catppuccin-mocha"
         yield Static(' Machine Monitor ', id='title')
         yield Rows()
+        yield DataTable()
         yield Footer()
 
     
     def on_mount(self) -> None:
+        table = self.query_one(DataTable)
+        table.cursor_type = "row"
+        table.zebra_stripes = True
+        table.add_columns(*column_names_)
         self.load_data()
 
     @work
     async def load_data(self) -> None:
-        while True:
-            if len(self.monitor) < 1:
-                self.query_one(Rows).content = "hosts list is empty"
-            else:
-                for k, v in self.monitor.items():
-                    self.query_one(Rows).content = f"{k} :\n\t{http_get(v, "metrics")}"
-                    break
-            await sleep(5)
+        if len(self.monitor) <1:
+            return
+        table = self.query_one(DataTable)
+        row_keys = []
+        row_info = {}
+        for k, v in self.monitor.items():
+            row_info[k] = http_get(v,"info")
+            row_keys.append(
+                table.add_row(*make_row(row_info[k]), key=k, label=k)
+            )
+        print(row_keys)
+        # while True:
+        #     for k, v in self.monitor.items():
+        #         self.query_one(Rows).content = f"{k} :\n\t{http_get(v, "metrics")}"
+        #         break
+        #     await sleep(5)
 
     def action_toggle_dark(self) -> None:
         self.theme = (
             "catppuccin-mocha" if self.theme == "catppuccin-latte" else "catppuccin-latte"
         )
-
-
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        path_to_list = sys.argv[1]
-    else:
-        path_to_list = Path(__file__).resolve().parent / "list.yaml"
-
-    try:
-        nodes = read_config(path_to_list)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
-
-    if not valid_monitor_list(nodes):
-        print(f"Monitoring list is empty:\n\t{path_to_list}")
-        sys.exit(1)
-
-    # for node_name, url in nodes['monitor'].items():
-    #     print(node_name)
-    #     print(http_get(url, 'info'))
-    #     print(http_get(url, 'metrics'))
-    app = MachineMonitor()
-    app.monitor = nodes['monitor']
-    app.run()
 

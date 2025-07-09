@@ -1,6 +1,6 @@
 import requests
 
-def http_get(hostname : str, path : str):
+def http_get(hostname : str, path : str) -> dict:
     try:
         res = requests.get("http://" + hostname + "/" + path, headers={"accept": "application/json"})
         if res.status_code != requests.codes.ok:

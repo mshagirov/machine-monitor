@@ -83,12 +83,12 @@ class MachineMetric():
                 ok, err = check_connection(props.get('host'), props.get('port'), 3)
                 res = "up" if ok else "down"
                 
-                res_fmt = f"{conn_name}:{props.get('port')}={res}"
+                res_fmt = f"{conn_name} port={props.get('port')} : {res}"
                 if err != None:
                     res_fmt += f" {err}"
                 connections.append(res_fmt)
             except Exception as e:
-                connections.append(f"{alias}:error {e}{type(e)}")
+                connections.append(f"{alias} : error {e}{type(e)}")
 
         if not connections:
             return CONN_ERROR
@@ -134,9 +134,9 @@ class MachineMetric():
             try:
                 isup = "up" if if_stats[i].isup else "down"
                 ifspeed = if_stats[i].speed if if_stats[i].speed>0 else 'NA'
-                if_info.append(f"{ifalias}:{isup},speed={ifspeed}")
+                if_info.append(f"{ifalias} : {isup},speed={ifspeed}")
             except Exception as e:
-                if_info.append(f"{ifalias}:{e}")
+                if_info.append(f"{ifalias} : {e}")
         return "; ".join(if_info)
 
     def _get_disk_usage(self):
@@ -178,9 +178,9 @@ class MachineMetric():
             try:
                 p_tot, _, p_free = shutil.disk_usage(mountpoints[p])
                 p_used = 100*(p_tot - p_free)/p_tot
-                disk_usage.append(f"{p}:{p_used:.1f}% ({byte2human(p_free)} free)")
+                disk_usage.append(f"{p} : {p_used:.1f}% ({byte2human(p_free)} free)")
             except Exception as e:
-                disk_usage.append(f"{p}:{e}")
+                disk_usage.append(f"{p} : {STORAGE_ERROR} {e}")
         return "; ".join(disk_usage)
 
     @staticmethod
