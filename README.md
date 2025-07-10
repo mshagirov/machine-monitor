@@ -17,6 +17,8 @@ git clone https://github.com/mshagirov/machine-monitor.git
 ```bash
 cd machine-monitor
 python3 -m venv .venv
+# or
+# uv venv .venv
 ```
 
 3. Activate the enviroment and install the requirements:
@@ -24,7 +26,11 @@ python3 -m venv .venv
 ```bash
 source .venv/bin/activate
 pip install -r requirements.txt
+# or
+# uv pip install -r requirements.txt
 ```
+
+(for development environment please additionally install `dev-requirements.txt`)
 
 4. Test `monitor.MachineMetric`:
 
