@@ -159,7 +159,7 @@ API server.
 
 Edit `tui/list.yaml` by adding `HOST_NAME: "IP:PORT"` key-value pairs under the
 `monitor:` key. Alternatively, create a new config or copy the host list to a new
-location the add it to the `monitor_remote.sh` before running the TUI.
+location, and then add its path to the `monitor_remote.sh` before running the TUI.
 
 To start the TUI app run:
 
