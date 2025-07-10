@@ -1,3 +1,5 @@
+import re
+
 column_names_ = {
     "HOST"    : "hostname",
     "OS"      : "os",
@@ -15,15 +17,17 @@ column_names_ = {
 
 col_LUT_ = {v:k for k, v in column_names_.items()}
 
-def clean_string(s:str)->str:
+def clean_string(s:str, )->str:
     out = []
     for item in map(
         lambda val: val.split(" : "), s.replace("%", "").split("; ")
     ):
         if len(item) < 2:
+            for m in re.findall(r"( \([^()]*\))", item[0]):
+                item[0] = item[0].replace(m, "")
             out.append(item[0])
             continue
-        if ("_ERROR " in item[1]) or ("down" in item[1]):
+        if ("_ERROR " in item[1]) or (" down" in item[1]):
             out.append(f"ERROR:{item[0]}")
             continue
         out.append("OK")
@@ -36,8 +40,12 @@ def clean_string(s:str)->str:
         )).replace("ERROR:", "")
 
 def make_row(info    : dict = {},
-             metrics : dict = {})->list:
-    row = { c: "" for c in column_names_}
+             metrics : dict = {},
+             template : bool= True)->dict:
+    if template:
+        row = { c: "" for c in column_names_}
+    else:
+        row = {}
     for k, v in info.items():
         if col_LUT_.get(k) == None:
             continue
@@ -46,4 +54,4 @@ def make_row(info    : dict = {},
         if col_LUT_.get(k) == None:
             continue
         row[col_LUT_[k]] = clean_string(v)
-    return [row[k] for k in column_names_]
+    return row #[row[k] for k in column_names_]

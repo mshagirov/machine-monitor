@@ -1,22 +1,13 @@
 from asyncio import sleep
 
 from textual import work
-from textual.reactive import reactive
+# from textual.reactive import reactive
 from textual.app import App, ComposeResult, RenderResult
-from textual.widget import Widget
+# from textual.widget import Widget
 from textual.widgets import Footer, Static, DataTable #Header
 from textual.binding import Binding
 from getrequest import http_get
 from columns import column_names_, make_row
-
-class Rows(Widget):
-    content = reactive("metrics")
-
-    def render(self) -> RenderResult:
-        return f"{self.content}"
-
-class Table(Widget):
-    columns = reactive("column names")
 
 
 class MachineMonitor(App):
@@ -37,7 +28,6 @@ class MachineMonitor(App):
     def compose(self) -> ComposeResult:
         self.theme = "catppuccin-mocha"
         yield Static(' Machine Monitor ', id='title')
-        yield Rows()
         yield DataTable()
         yield Footer()
 
@@ -46,7 +36,6 @@ class MachineMonitor(App):
         table = self.query_one(DataTable)
         table.cursor_type = "row"
         table.zebra_stripes = True
-        table.add_columns(*column_names_)
         self.load_data()
 
     @work
@@ -54,19 +43,23 @@ class MachineMonitor(App):
         if len(self.monitor) <1:
             return
         table = self.query_one(DataTable)
-        row_keys = []
-        row_info = {}
-        for k, v in self.monitor.items():
-            row_info[k] = http_get(v,"info")
-            row_keys.append(
-                table.add_row(*make_row(row_info[k]), key=k, label=k)
-            )
-        print(row_keys)
-        # while True:
-        #     for k, v in self.monitor.items():
-        #         self.query_one(Rows).content = f"{k} :\n\t{http_get(v, "metrics")}"
-        #         break
-        #     await sleep(5)
+        column_keys = dict(zip( column_names_, table.add_columns(*column_names_)))
+        row_keys = {}
+        for k, host in self.monitor.items():
+            row_template = make_row(info = http_get(host,"info") )
+            row = [row_template[col_i] for col_i in column_names_]
+            row_keys[k] = table.add_row(*row, key=k, label=k)
+        while True:
+            for k, host in self.monitor.items():
+                row_k = row_keys[k]
+                for col_idx, value in make_row(
+                    metrics = http_get(host, "metrics"),
+                    template = False
+                ).items():
+                    col_k = column_keys[col_idx]
+                    table.update_cell(row_key=row_k, column_key=col_k, value=value)
+                table.refresh_row(table.get_row_index(row_k))
+            await sleep(5)
 
     def action_toggle_dark(self) -> None:
         self.theme = (
