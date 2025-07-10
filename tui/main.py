@@ -10,6 +10,11 @@ if __name__ == "__main__":
     else:
         path_to_list = Path(__file__).resolve().parent / "list.yaml"
 
+    if len(sys.argv) > 2:
+        delay = int(sys.argv[2])
+    else:
+        delay = 5
+
     try:
         nodes = read_config(path_to_list)
     except Exception as e:
@@ -20,6 +25,9 @@ if __name__ == "__main__":
         print(f"Monitoring list is empty:\n\t{path_to_list}")
         sys.exit(1)
     app = MachineMonitor()
+    
     app.monitor = nodes['monitor']
+    app.delay_in_seconds = delay
+
     app.run()
 

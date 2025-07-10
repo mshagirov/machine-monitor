@@ -1,5 +1,7 @@
 import re
+from datetime import datetime
 
+# can change the column name (key) but NOT API name (value)
 column_names_ = {
     "HOST"    : "hostname",
     "OS"      : "os",
@@ -28,9 +30,9 @@ def clean_string(s:str, )->str:
             out.append(item[0])
             continue
         if ("_ERROR " in item[1]) or (" down" in item[1]):
-            out.append(f"ERROR:{item[0]}")
+            out.append(f"ERROR:{item[0][:5]}")
             continue
-        out.append("OK")
+        out.append(f"{item[0][:5]}:OK")
     num_errors = sum(map(lambda item: "ERROR" in item, out))
     if num_errors < 1:
         return "/".join(out)
@@ -54,4 +56,9 @@ def make_row(info    : dict = {},
         if col_LUT_.get(k) == None:
             continue
         row[col_LUT_[k]] = clean_string(v)
+    # reformat timestamp
+    if (None != row.get(col_LUT_["timestamp"])) and row[col_LUT_["timestamp"]]:
+        row[col_LUT_["timestamp"]] = datetime.strptime( row[col_LUT_["timestamp"]],
+                                                   "%d-%m-%Y %H:%M:%S.%f"
+                                                   ).strftime("%d%b %H:%M:%S")
     return row #[row[k] for k in column_names_]

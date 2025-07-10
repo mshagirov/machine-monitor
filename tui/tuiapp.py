@@ -1,10 +1,8 @@
 from asyncio import sleep
 
 from textual import work
-# from textual.reactive import reactive
-from textual.app import App, ComposeResult, RenderResult
-# from textual.widget import Widget
-from textual.widgets import Footer, Static, DataTable #Header
+from textual.app import App, ComposeResult
+from textual.widgets import Footer, Static, DataTable
 from textual.binding import Binding
 from getrequest import http_get
 from columns import column_names_, make_row
@@ -21,9 +19,10 @@ class MachineMonitor(App):
 """
     # Key bindings
     BINDINGS = [('d', 'toggle_dark', 'Toggle dark mode'),
-                Binding('q', 'quit', 'Quit', show=False, priority=True)]
+                Binding('q', 'quit', 'Quit', show=True, priority=True)]
 
     monitor = {}
+    delay_in_seconds = 5
 
     def compose(self) -> ComposeResult:
         self.theme = "catppuccin-mocha"
@@ -59,7 +58,7 @@ class MachineMonitor(App):
                     col_k = column_keys[col_idx]
                     table.update_cell(row_key=row_k, column_key=col_k, value=value)
                 table.refresh_row(table.get_row_index(row_k))
-            await sleep(5)
+            await sleep(self.delay_in_seconds)
 
     def action_toggle_dark(self) -> None:
         self.theme = (

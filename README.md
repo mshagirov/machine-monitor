@@ -152,6 +152,21 @@ In case if you accidentally close the parent process, you can search the child's
 PID with `ps aux | grep fastapi`. Closing the parent process does not close the child
 API server.
 
+## TUI (Terminal User Interface) for Monitoring Machines
+
+> Monitoring localhost: you can run `./dev.sh` and in another terminal
+`./monitor_remote.sh` to monitor localhost (you may need to edit the "tui/list.yaml")
+
+Edit `tui/list.yaml` by adding `HOST_NAME: "IP:PORT"` key-value pairs under the
+`monitor:` key. Alternatively, create a new config or copy the host list to a new
+location the add it to the `monitor_remote.sh` before running the TUI.
+
+To start the TUI app run:
+
+```bash
+./monitor_remote.sh
+```
+
 ## Future Plans (for Linux)
 
 Future plans to add following functionality
