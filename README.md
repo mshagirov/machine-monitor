@@ -174,6 +174,8 @@ To start the TUI app run:
 ./monitor_remote.sh
 ```
 
+![TUI](./mm_tui.png)
+
 ## Future Plans (for Linux)
 
 Future plans to add following functionality
