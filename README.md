@@ -30,7 +30,8 @@ pip install -r requirements.txt
 # uv pip install -r requirements.txt
 ```
 
-(for development environment please additionally install `dev-requirements.txt`)
+(for development environment install `dev-requirements.txt` instead of the above
+file)
 
 4. Test `monitor.MachineMetric`:
 
