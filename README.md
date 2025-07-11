@@ -176,7 +176,7 @@ To start the TUI app run:
 
 ![TUI](./mm_tui.png)
 
-The TUI is built using [Textual](https://github.com/textualize/textual/)) and
+The TUI is built using [Textual](https://github.com/textualize/textual/) and
 you can run it as a web app using `textual` command.
 
 ```bash
