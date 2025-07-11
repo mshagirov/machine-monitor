@@ -1,3 +1,5 @@
+![mm-logo](./mm-logo.png)
+
 # `machine-monitor` 
 
 > A Python Tool for Querying Machine Health & Usage (mainly for Linux machines)
