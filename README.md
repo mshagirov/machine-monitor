@@ -176,6 +176,19 @@ To start the TUI app run:
 
 ![TUI](./mm_tui.png)
 
+The TUI is built using [Textual](https://github.com/textualize/textual/)) and
+you can run it as a web app using `textual` command.
+
+```bash
+textual serve --port PORT "./monitor_remote.sh"
+# or
+# textual serve --port PORT "python tui/main.py"
+```
+
+replace `PORT` with an available port number. If running together with the
+machine metrics API above, PORT must be set manually to a different port from
+the API port.
+
 ## Future Plans (for Linux)
 
 Future plans to add following functionality
