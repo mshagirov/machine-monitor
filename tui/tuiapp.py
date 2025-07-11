@@ -26,7 +26,7 @@ class MachineMonitor(App):
 
     def compose(self) -> ComposeResult:
         self.theme = "catppuccin-mocha"
-        yield Static(' Machine Monitor ', id='title')
+        yield Static(' ≡≡ Machine Monitor ≡≡ ', id='title')
         yield DataTable()
         yield Footer()
 
@@ -52,11 +52,15 @@ class MachineMonitor(App):
             for k, host in self.monitor.items():
                 row_k = row_keys[k]
                 for col_idx, value in make_row(
+                    info = http_get(host, "info"),
                     metrics = http_get(host, "metrics"),
-                    template = False
+                    template = True
                 ).items():
                     col_k = column_keys[col_idx]
-                    table.update_cell(row_key=row_k, column_key=col_k, value=value)
+                    table.update_cell(row_key=row_k,
+                                      column_key=col_k,
+                                      value=value,
+                                      update_width=True)
                 table.refresh_row(table.get_row_index(row_k))
             await sleep(self.delay_in_seconds)
 
